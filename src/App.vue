@@ -48,9 +48,13 @@ const appliedUrl = ref('')
 
 onMounted(() => {
   const storedUrl = localStorage.getItem('apiUrl')
-  if (storedUrl) {
+  console.log('Stored API URL:', storedUrl)
+  if (storedUrl === null) {
+    showToast('API URL belum diterapkan.', 'error')
+  } else {
     apiUrl.value = storedUrl
-    applyApiUrl()
+    // applyApiUrl()
+    fetchData()
   }
 })
 
@@ -84,15 +88,12 @@ const applyApiUrl = async () => {
 
   appliedUrl.value = apiUrl.value
   localStorage.setItem('apiUrl', appliedUrl.value)
-
-  try {
-    const res = await axios.get(appliedUrl.value)
-    const data = res.data
-    discounts.value = Array.isArray(data) ? data : [data]
-  } catch (error) {
-    console.error('Error fetching discounts:', error)
-    discounts.value = []
-    showToast('Gagal mengambil data diskon. Periksa URL API Anda.', 'error')
+  const storedUrl = localStorage.getItem('apiUrl')
+  if (storedUrl !== null || storedUrl !== '') {
+    showToast('API URL diterapkan.', 'success')
+    fetchData()
+  } else {
+    showToast('Gagal menerapkan API URL.', 'error')
   }
 }
 
